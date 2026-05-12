@@ -1,0 +1,20 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+  <!-- Lotus/Plant petals -->
+  <g fill="none" stroke="#5db646" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left petal -->
+    <path d="M 70 120 Q 40 100 35 60 Q 35 30 60 20"/>
+    <!-- Left-center petal -->
+    <path d="M 85 130 Q 50 120 40 70 Q 35 35 65 15"/>
+    <!-- Right-center petal -->
+    <path d="M 115 130 Q 150 120 160 70 Q 165 35 135 15"/>
+    <!-- Right petal -->
+    <path d="M 130 120 Q 160 100 165 60 Q 165 30 140 20"/>
+    <!-- Bottom-left petal -->
+    <path d="M 75 125 Q 50 145 45 180 Q 45 195 70 200"/>
+    <!-- Bottom-right petal -->
+    <path d="M 125 125 Q 150 145 155 180 Q 155 195 130 200"/>
+  </g>
+  
+  <!-- Center circle -->
+  <circle cx="100" cy="95" r="18" fill="#5db646"/>
+</svg>

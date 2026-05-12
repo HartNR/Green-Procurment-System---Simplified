@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!-- Modify Data shell page; the form is mounted by app.js and modify-data.js -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Modify Data - Procurement System</title>
+    <meta
+      name="description"
+      content="Strategic procurement: sourcing through acquisition, supplier posture, and GPPB-aligned compliance—beyond transactional purchasing alone."
+    />
+    <link rel="icon" href="GPC.png" type="image/png" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="modify-data.css" />
+  </head>
+  <body>
+    <!-- App shell: persistent layout with sidebar navigation and main content -->
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Main navigation">
+        <div class="brand">
+          <img src="GPC.png" alt="GANG Logo" class="brand-icon" />
+          <div>
+            <p class="brand-title">GANG</p>
+            <p class="brand-sub">Procurement System</p>
+          </div>
+        </div>
+        <nav class="nav" id="main-nav"></nav>
+      </aside>
+      <div class="main-column">
+        <header class="topbar">
+          <p class="topbar-tagline" id="header-tagline"></p>
+        </header>
+        <main class="content" id="view-root"></main>
+        <footer class="app-footer">
+          <div class="footer-copy">GANG • Procurement System</div>
+          <div class="footer-links">
+            <a href="index.html">Dashboard</a>
+            <a href="procurement-log.html">Procurement Log</a>
+            <a href="suppliers.html">Supplier Profiles</a>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script src="modify-data.js" defer></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>
+
