@@ -1035,14 +1035,10 @@
                   type="file"
                   accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
                 />
-                <button type="button" class="btn btn-dark" id="btn-excel-import" ${suppliers.length === 0 ? "disabled" : ""}>
+                <button type="button" class="btn btn-dark" id="btn-excel-import">
                   Import Excel rows
                 </button>
-                ${
-                  suppliers.length === 0
-                    ? `<p class="text-xs" style="color:#be123c;margin:0">Add suppliers first—Excel import needs matching supplier names.</p>`
-                    : ""
-                }
+                <p class="text-xs" style="color:#0f766e;margin:0">Supplier names will be matched to existing profiles or created automatically from the imported file.</p>
               </div>
               <div class="result-box" id="excel-result" style="display:${window._excelImportResult ? "block" : "none"}">
                 ${
