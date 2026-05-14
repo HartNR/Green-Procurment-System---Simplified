@@ -115,18 +115,22 @@
 
   let dashboardPeriod = { filterType: "month", y: new Date().getUTCFullYear(), m: new Date().getUTCMonth() + 1, from: "", to: "" };
 
+  // Generate a unique client-side ID for new records.
   function generateId() {
     return "c_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 10);
   }
 
+  // Return the current timestamp in ISO format.
   function nowIso() {
     return new Date().toISOString();
   }
 
+  // Return the human-readable label for a procurement category code.
   function getCategoryLabel(v) {
     return PROCUREMENT_CATEGORIES.find((e) => e.value === v)?.label ?? v;
   }
 
+  // Convert category label or code into a normalized procurement category value.
   function categoryFromLabelOrCode(raw) {
     const s = String(raw || "").trim();
     if (!s) return "";
@@ -140,6 +144,7 @@
     return loose ? loose.value : s;
   }
 
+  // Check whether item attributes match any GPPB green keywords.
   function checkGPPBCompliance(itemAttributes) {
     const normalize = (s) =>
       String(s || "")
@@ -154,6 +159,7 @@
     );
   }
 
+  // Suggest item attributes based on item name and category.
   function getSuggestedAttributesForItem(itemName, category) {
     const normalized = itemName.trim().toLowerCase();
     const categoryFallback = category ? CATEGORY_DEFAULT_ATTRIBUTES[category] ?? [] : [];
@@ -165,6 +171,7 @@
     return Array.from(new Set([...matched, ...categoryFallback]));
   }
 
+  // Determine if attributes indicate green classification for a category.
   function suggestedGreenFromAttributes(category, itemAttributes) {
     const normalize = (s) =>
       String(s || "")
@@ -189,11 +196,13 @@
     return { suggested, matchedKeywords };
   }
 
+  // Build a classification log string based on matched keywords.
   function buildClassificationLog(itemAttributes, matchedKeywords, suggested) {
     if (!itemAttributes.length) return "No attributes provided; default classification applied.";
     return `Attributes: ${itemAttributes.join(", ")} | Matched keywords: ${matchedKeywords.length ? matchedKeywords.join(", ") : "none"} | Suggested: ${suggested ? "Green" : "Non-Green"}`;
   }
 
+  // Produce an institutional verdict from green spend and count ratios.
   function institutionGreenVerdict(spendGreenPct, countGreenPct, hasAcquisitions) {
     if (!hasAcquisitions) {
       return {
@@ -230,6 +239,7 @@
     };
   }
 
+  // Parse a YYYY-MM-DD string into a UTC Date object or return null.
   function parseYmd(ymd) {
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(ymd).trim());
     if (!m) return null;
@@ -242,21 +252,25 @@
     return dt;
   }
 
+  // Add or subtract days from a UTC date without altering timezone semantics.
   function addUtcDays(d, days) {
     const x = new Date(d.getTime());
     x.setUTCDate(x.getUTCDate() + days);
     return x;
   }
 
+  // Format a month label string from a UTC date.
   function monthLabel(start) {
     return new Intl.DateTimeFormat("en-PH", { month: "long", year: "numeric", timeZone: "UTC" }).format(start);
   }
 
+  // Format a human-readable UTC date range label.
   function rangeLabel(start, endInclusive) {
     const fmt = new Intl.DateTimeFormat("en-PH", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
     return `${fmt.format(start)} \u2013 ${fmt.format(endInclusive)}`;
   }
 
+  // Resolve dashboard period state into a concrete date interval and label.
   function resolveProcurementPeriod() {
     const f = dashboardPeriod.filterType;
     if (f === "overall") {
@@ -281,6 +295,7 @@
     return { filterType: "month", start, endExclusive, label: monthLabel(start) };
   }
 
+  // Format a UTC Date as a YYYY-MM-DD string.
   function formatUtcYmd(d) {
     const y = d.getUTCFullYear();
     const m = String(d.getUTCMonth() + 1).padStart(2, "0");
@@ -288,10 +303,12 @@
     return `${y}-${m}-${day}`;
   }
 
+  // Convert an exclusive end date into an inclusive end date.
   function endInclusiveFromExclusive(endExclusive) {
     return addUtcDays(endExclusive, -1);
   }
 
+  // Return default year/month and range values for the current UTC month.
   function currentUtcMonthDefaults() {
     const n = new Date();
     const y = n.getUTCFullYear();
@@ -306,6 +323,7 @@
     };
   }
 
+  // Check whether a purchase record falls inside the selected period.
   function purchaseInPeriod(p, period) {
     if (period.filterType === "overall") return true;
     const t = new Date(p.purchaseDate).getTime();
@@ -329,6 +347,7 @@
     }
   }
 
+  // Save current application state to localStorage.
   function saveState() {
     const payload = {
       suppliers: state.suppliers,
@@ -343,6 +362,7 @@
   // Demo seed helpers: create default data for initial state when needed
   // localStorage-only (no server)
 
+  // Seed default GPPB criteria rows for a fresh app state.
   function seedGppb() {
     const seeds = [
       ["IT", "energy star", "Energy-efficient electronics"],
@@ -366,6 +386,7 @@
     }));
   }
 
+  // Seed demo supplier, certification, and purchase data for first-time users.
   function seedDemo() {
     const t = nowIso();
     const s1 = {
@@ -444,6 +465,7 @@
     saveState();
   }
 
+  // Escape HTML reserved characters before rendering into the page.
   function escapeHtml(s) {
     return String(s)
       .replace(/&/g, "&amp;")
@@ -452,6 +474,7 @@
       .replace(/"/g, "&quot;");
   }
 
+  // Get the current route name from the URL hash or forced route setting.
   function getRoute() {
     if (FORCED_ROUTE) return FORCED_ROUTE;
     const h = window.location.hash.replace(/^#\/?/, "") || "dashboard";
@@ -459,6 +482,7 @@
     return path || "dashboard";
   }
 
+  // Navigate to a route by setting the URL hash or redirecting when forced route is active.
   function setHash(route) {
     if (FORCED_ROUTE) {
       const target = ROUTE_TO_FILE[route] || ROUTE_TO_FILE["procurement-log"];
@@ -468,23 +492,28 @@
     window.location.hash = "#/" + route;
   }
 
+  // Build a navigation href based on the routing mode.
   function routeHref(route) {
     if (FORCED_ROUTE) return ROUTE_TO_FILE[route] || ROUTE_TO_FILE["procurement-log"];
     return "#/" + route;
   }
 
+  // Find a supplier object by its ID.
   function supplierById(id) {
     return state.suppliers.find((s) => s.id === id);
   }
 
+  // Count certifications associated with a supplier.
   function countCerts(supplierId) {
     return state.certifications.filter((c) => c.supplierId === supplierId).length;
   }
 
+  // Count purchase records associated with a supplier.
   function countPurchases(supplierId) {
     return state.purchases.filter((p) => p.supplierId === supplierId).length;
   }
 
+  // Delete a supplier and all related purchases and certifications.
   function deleteSupplierCascade(supplierId) {
     state.purchases = state.purchases.filter((p) => p.supplierId !== supplierId);
     state.certifications = state.certifications.filter((c) => c.supplierId !== supplierId);
@@ -512,6 +541,7 @@
     const r = 176;
     const stroke = 68;
 
+    // Convert polar coordinates to Cartesian coordinates for SVG paths.
     function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
       const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
       return {
@@ -520,6 +550,7 @@
       };
     }
 
+    // Build an SVG path description string for an arc segment.
     function describeArc(x, y, radius, startAngle, endAngle) {
       const start = polarToCartesian(x, y, radius, endAngle);
       const end = polarToCartesian(x, y, radius, startAngle);
@@ -538,6 +569,7 @@
     const aMid = aEnd / 2;
     const bMid = aEnd + (359.999 - aEnd) / 2;
 
+    // Calculate callout line and label positions for donut chart segments.
     function makeCallout(angle, side) {
       const pointA = polarToCartesian(cx, cy, r + stroke / 2, angle);
       const pointB = polarToCartesian(cx, cy, r + 60, angle);
@@ -608,6 +640,7 @@
     `;
   }
 
+  // Ensure the shared pie chart tooltip element exists in the DOM.
   function ensurePieTooltip() {
     let el = document.getElementById("pie-tooltip");
     if (el) return el;
@@ -619,14 +652,17 @@
     return el;
   }
 
+  // Bind hover interactions to pie chart segments for tooltip display.
   function bindPieHover(container) {
     const tooltip = ensurePieTooltip();
     const segs = container.querySelectorAll("[data-pie-seg]");
 
+    // Hide the pie chart tooltip.
     function hide() {
       tooltip.style.display = "none";
     }
 
+    // Show the pie tooltip with segment details.
     function show(ev, seg) {
       const name = seg.getAttribute("data-name") || "";
       const value = Number(seg.getAttribute("data-value") || "0");
@@ -851,6 +887,7 @@
     `;
   }
 
+  // Bind dashboard controls and filter interactions after rendering.
   function bindDashboard() {
     const fields = document.getElementById("dash-fields");
     const monthRadio = document.getElementById("dash-type-month");
@@ -878,6 +915,7 @@
     let from = filterType === "range" ? dashboardPeriod.from || dm.from : dm.from;
     let to = filterType === "range" ? dashboardPeriod.to || dm.to : dm.to;
 
+    // Render the dashboard filter fields for the selected period type.
     function renderFields() {
       if (filterType === "overall") {
         fields.innerHTML = `<p class="rf-none">No date fields—every acquisition in the database is included.</p>`;
@@ -933,6 +971,7 @@
     rangeRadio.checked = filterType === "range";
     renderFields();
 
+    // Apply dashboard period filter selections and refresh the view.
     function apply() {
       if (filterType === "overall") {
         dashboardPeriod = { filterType: "overall", y: dm.y, m: dm.m, from: dm.from, to: dm.to };
@@ -978,6 +1017,7 @@
     });
   }
 
+  // Bind hover behavior to dashboard pie charts after render.
   function bindDashboardCharts() {
     document.querySelectorAll("[data-pie-container]").forEach((container) => {
       bindPieHover(container);
@@ -986,6 +1026,7 @@
 
   // --- continue in part 2: procurement log, suppliers, modify, gppb, router ---
 
+  // Render the procurement log view HTML and its import/search sections.
   function renderProcurementLog() {
     const q = (window._procLogQ || "").trim().toLowerCase();
     const purchases = state.purchases
@@ -1146,6 +1187,7 @@
     `;
   }
 
+  // Bind procurement log forms, import/export, and search behavior.
   function bindProcurementLog() {
     const form = document.getElementById("form-purchase");
     const item = document.getElementById("pl-item");
@@ -1156,10 +1198,12 @@
     const finalEl = document.getElementById("pl-final");
     let attrManual = false;
 
+    // Parse item attribute input into a cleaned list of values.
     function attrList() {
       return attr.value.split(",").map((x) => x.trim()).filter(Boolean);
     }
 
+    // Update green classification suggestion and final status display.
     function refreshSuggestion() {
       const list = attrList();
       const { suggested } = suggestedGreenFromAttributes(cat.value || "OTHER", list);
@@ -1170,6 +1214,7 @@
       finalEl.innerHTML = `Final status to save: <strong>${final ? "Green" : "Non-Green"}</strong> <span class="hint">(${mode === "AUTO" ? "Auto mode" : "Manual override"})</span>`;
     }
 
+    // Auto-fill suggested item attributes unless manually overridden.
     function maybeAutoAttributes() {
       if (attrManual) return;
       const sug = getSuggestedAttributesForItem(item.value, cat.value);
@@ -1257,6 +1302,7 @@
       render();
     });
 
+    // Normalize spreadsheet headers for Excel import mapping.
     function normalizeHeader(h) {
       return String(h || "")
         .trim()
@@ -1264,6 +1310,7 @@
         .replace(/\s+/g, "");
     }
 
+    // Find a matching column header from Excel import data.
     function excelCol(headerMap, ...names) {
       for (const name of names) {
         const k = headerMap[normalizeHeader(name)];
@@ -1272,6 +1319,7 @@
       return null;
     }
 
+    // Parse a spreadsheet date value into a Date object.
     function parseExcelDate(value) {
       if (!value) return null;
       if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
@@ -1285,6 +1333,7 @@
       return Number.isNaN(dt.getTime()) ? null : dt;
     }
 
+    // Build export rows for the procurement log based on current search.
     function getProcurementLogExportRows() {
       const q = (window._procLogQ || "").trim().toLowerCase();
       return state.purchases
@@ -1563,6 +1612,7 @@
     });
   }
 
+  // Render the suppliers management view HTML.
   function renderSuppliers() {
     const suppliers = state.suppliers.slice().sort((a, b) => a.name.localeCompare(b.name));
     return `
@@ -1627,6 +1677,7 @@
     `;
   }
 
+  // Bind supplier and certification form submit handlers.
   function bindSuppliers() {
     document.getElementById("form-supplier")?.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -1686,6 +1737,7 @@
     });
   }
 
+  // Convert an ISO date string into a YYYY-MM-DD input value.
   function formatDateInput(iso) {
     const d = new Date(iso);
     const y = d.getFullYear();
@@ -1694,6 +1746,7 @@
     return `${y}-${m}-${day}`;
   }
 
+  // Render the modify-data view for editing suppliers and purchases.
   function renderModify() {
     const suppliers = state.suppliers.slice().sort((a, b) => a.name.localeCompare(b.name));
     const purchases = state.purchases.slice().sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate)).slice(0, 100);
@@ -1770,6 +1823,7 @@
     `;
   }
 
+  // Bind modify-data update and delete form behaviors.
   function bindModify() {
     document.querySelectorAll("form[data-update-supplier]").forEach((form) => {
       form.addEventListener("submit", (e) => {
@@ -1839,6 +1893,7 @@
     });
   }
 
+  // Render the GPPB reference management view.
   function renderGppb() {
     const q = (window._gppbQ || "").trim().toLowerCase();
     const catF = window._gppbCat || "";
@@ -1971,6 +2026,7 @@
     `;
   }
 
+  // Bind GPPB criteria filter, add, toggle, edit, and delete actions.
   function bindGppb() {
     document.getElementById("form-gppb-filter")?.addEventListener("submit", (e) => {
       e.preventDefault();
